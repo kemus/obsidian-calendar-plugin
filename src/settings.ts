@@ -12,6 +12,7 @@ export interface ISettings {
   shouldConfirmBeforeCreate: boolean;
   enableViewModeOverride: boolean,
   viewModeOverride: string;
+  ctrlClickOpensInNewTab: boolean;
 
   // Weekly Note settings
   showWeeklyNote: boolean;
@@ -37,6 +38,7 @@ export const defaultSettings = Object.freeze({
   weekStart: "locale" as IWeekStartOption,
   enableViewModeOverride: false,
   viewModeOverride: app.vault.getConfig("defaultViewMode"),
+  ctrlClickOpensInNewTab: false,
 
   wordsPerDot: DEFAULT_WORDS_PER_DOT,
 
@@ -83,6 +85,7 @@ export class CalendarSettingsTab extends PluginSettingTab {
     });
     this.addDotThresholdSetting();
     this.addWeekStartSetting();
+    this.addCtrlClickSetting();
     this.addConfirmCreateSetting();
     this.addViewModeOverrideSetting();
     this.addShowWeeklyNoteSetting();
@@ -147,6 +150,22 @@ export class CalendarSettingsTab extends PluginSettingTab {
         dropdown.onChange(async (value) => {
           this.plugin.writeOptions(() => ({
             weekStart: value as IWeekStartOption,
+          }));
+        });
+      });
+  }
+
+  addCtrlClickSetting(): void {
+    new Setting(this.containerEl)
+      .setName("Ctrl + Click Behaviour")
+      .setDesc("Set the behaviour of Ctrl + Clicking on a date")
+      .addDropdown((dropdown) => {
+        dropdown.addOption("new-tab", "Open in new tab");
+        dropdown.addOption("new-split", "Open in new split");
+        dropdown.setValue(this.plugin.options.ctrlClickOpensInNewTab ? "new-tab" : "new-split");
+        dropdown.onChange(async (value) => {
+          this.plugin.writeOptions(() => ({
+            ctrlClickOpensInNewTab: value === "new-tab",
           }));
         });
       });
